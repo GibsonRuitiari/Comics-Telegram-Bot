@@ -1,0 +1,97 @@
+package backend.source
+
+import backend.comic_models.MangaPage
+import backend.comic_models.SManga
+import backend.comic_models.SMangaChapter
+import backend.comic_models.SMangaInfo
+import backend.extensions.asJsoup
+import okhttp3.Response
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
+
+internal abstract class ParsedHttpSource:HttpSource() {
+    override fun parseCompletedComicsParse(response: Response): MangaPage {
+      return response.asJsoup().run {
+          val mangas = mangaCompletedFromDocument(this)
+          return@run MangaPage(mangas,true)
+      }
+    }
+
+    override fun parseOnGoingComicsAndBasedGenreParse(response: Response): MangaPage {
+        return response.asJsoup().run {
+            val mangas=mangaByGenreAndOngoingFromDocument(this)
+         //   val hasNextPage=select("a.pagination-button").select("a.pagination-older").isEmpty()
+            return@run MangaPage(mangas, true)
+        }
+    }
+
+    override fun parsePopularAndNewComicsParse(response: Response): MangaPage {
+       return response.asJsoup().run {
+            val mangas=popularAndNewMangaFromDocument(this)
+           // val hasNextPage=select("a.pagination-button").select("a.pagination-older").isEmpty()
+            return@run MangaPage(mangas, true)
+        }
+    }
+
+    override fun mangaDetailsParse(response: Response): SMangaInfo {
+        return mangaDetailsParse(response.asJsoup())
+
+    }
+
+
+    override fun parseMangaIssue(response: Response): SMangaChapter {
+        return mangaIssuesFromDocument(response.asJsoup())
+    }
+
+    /**
+     * Returns the details of the manga from the given [document].
+     *
+     * @param document the parsed document.
+     */
+    protected abstract fun mangaDetailsParse(document: Document): SMangaInfo
+
+    /**
+     * Common elements' src,title,href
+     * please note: override if necessary!
+     */
+    open fun imageUrlFromElement(element: Element):String = element.attr("src")
+    open fun titleFromElement(element: Element):String = element.attr("title")
+    open fun hrefUrlFromElement(element: Element):String = element.attr("href")
+
+
+    /**
+     * Needed selectors to get the popular and new comics
+     */
+    protected abstract fun mangaPopularAndNewNextPageSelector():String?
+    protected abstract fun mangaPopularAndNewTitleSelector():String
+    protected abstract fun mangaPopularAndNewThumbnailSelector():String
+    protected abstract fun mangaPopularAndNewMangaLinkSelector():String
+    protected abstract fun latestEpisodeLinkLinkSelector():String?
+    protected abstract fun popularAndNewMangaFromDocument(document: Document):List<SManga>
+
+    /**
+     * Needed selectors to get the comics per genre and ongoing comics
+     */
+    protected abstract fun mangaByGenreAndOngoingNextPageSelector():String?
+    protected abstract fun mangaByGenreAndOngoingTitleSelector():String
+    protected abstract fun mangaByGenreAndOngoingThumbnailSelector():String
+    protected abstract fun mangaByGenreAndOngoingMangaLinkSelector():String
+    protected abstract fun mangaByGenreAndOngoingFromDocument(document: Document):List<SManga>
+    /**
+     * Needed selectors to get the issues
+     */
+
+    protected abstract fun mangaIssuesFromDocument(document: Document):SMangaChapter
+
+    /**
+     * Needed selectors for completed comics
+     */
+    protected abstract fun mangaCompletedNextPageSelector():String?
+    protected abstract fun mangaCompletedThumbnailSelector():String
+    protected abstract fun mangaCompletedMangaLinkSelector():String
+    protected abstract fun mangaCompletedFromDocument(document: Document):List<SManga>
+
+
+
+
+}
