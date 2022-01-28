@@ -2,6 +2,9 @@ package frontend
 
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.BotCommand
+import frontend.commands.MainMenuCommand
+import frontend.commands.OnGoingComicsCommand
+import frontend.commands.StartCommand
 
 class BotController {
     private val botToken = "1814039661:AAEX69rqHYpFfkL6ZE7kG7RX49GQr50iTO4"
@@ -16,18 +19,15 @@ class BotController {
     }
     fun initializeCommands(){
         // a list of inputs
-        val commandsList = listOf(StartCommand)
+        val commandsList = listOf(StartCommand, MainMenuCommand,OnGoingComicsCommand)
        commandsList.forEach { stateMachine.handleEvent(it) }
         with(bot){
             // handle each command and log the state
-           val x= setMyCommands(commandsList.map { BotCommand(command = "/${it.commandName}",description = it.commandDescription) }).get()
-            println(x)
+           setMyCommands(commandsList.map { BotCommand(command = "/${it.commandName}",description = it.commandDescription)})
         }
     }
     fun onCreate(){
        bot.start()
     }
-    fun onDestroy(){
-        bot.stop()
-    }
+
 }

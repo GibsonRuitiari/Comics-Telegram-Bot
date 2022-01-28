@@ -8,5 +8,5 @@ interface Command{
     val commandName:String
     val commandDescription:String
     val commandHelpMessage:String
-    fun onMessageDoAction(bot:Bot,message: Message,options:String?):Result
+   suspend fun onMessageDoAction(bot:Bot,message: Message,options:String?):Result
 }
