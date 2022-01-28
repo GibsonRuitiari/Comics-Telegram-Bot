@@ -14,11 +14,14 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.0.6")
+    implementation("com.github.elbekD:kt-telegram-bot:1.4.1")
     implementation("org.jsoup:jsoup:1.14.3")
     implementation("com.squareup.okhttp3:okhttp-dnsoverhttps:4.9.3")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-native-mt")
+    implementation("com.natpryce", "konfig", "1.6.10.0" )
+    implementation("org.slf4j", "slf4j-simple", "2.0.0-alpha2")
+    implementation("io.github.microutils", "kotlin-logging", "2.0.10")
     testImplementation("com.google.truth:truth:1.1.3")
     testImplementation(kotlin("test"))
 }
