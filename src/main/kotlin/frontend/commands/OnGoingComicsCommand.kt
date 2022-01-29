@@ -51,10 +51,11 @@ object OnGoingComicsCommand:Command {
         // we did not fail
        return@coroutineScope try {
             with(bot){
-                val comicListString=mangas.joinToString {
+                val comicListString=mangas.joinToString(separator = "\n"){
                     val modifiedUrl = it.comicLink.returnModifiedUrl()// returns a name that can be embedded back to the url to form a complete url
-                    "★ *${it.comicName}* ${System.lineSeparator()}_View_: [/vw\\_$modifiedUrl]($dummyViewUri) "
+                    "★ *${it.comicName}* ${System.lineSeparator()} view: [/vw$modifiedUrl](http://view_url) ${System.lineSeparator()}"
                 }
+
 
                 // 1 row 3 columns
                 // prev-back-next
@@ -63,13 +64,15 @@ object OnGoingComicsCommand:Command {
                 val onGoingComicsMarkup = InlineKeyboardMarkup(listOf(firstRow))
                 sendMessage(message.chat.id,
                     markup =onGoingComicsMarkup,
-                    parseMode = "MarkdownV2",
-                    text = "*Showing On-Going Comics* ${System.lineSeparator()} ${System.lineSeparator()} $comicListString ${System.lineSeparator()}").get()
+                    text = comicListString.replace("]","\\]").replace(")","\\)").replace("-","\\-").replace("(","\\(").replace(".","\\.").replace("_","\\_")+
+                            System.lineSeparator()
+                ).get()
 
-               this  onComicClicked mangas.map { it.comicLink.returnModifiedUrl() }
+            //   this  onComicClicked mangas.map { it.comicLink.returnModifiedUrl() }
             }
             Result(true,null)
         }catch (ex:TelegramApiError){
+            logger.error { "${LocalDateTime.now()} error:${ex.message}" }
             Result(false,ex.message)
         }
 
@@ -130,9 +133,19 @@ object OnGoingComicsCommand:Command {
             }
         }
     }
+    // returns a name that can be embedded back to the url to form a complete url also it escapes some characters
     private fun String.returnModifiedUrl():String{
-      return  this.removePrefix(prefix) // returns a name that can be embedded back to the url to form a complete url
+      return  this.removePrefix(prefix)
          }
+    private fun String.escapeReservedCharacters():String{
+        return replace("(", "\\(")
+            .replace(")","\\)")
+            .replace("-", "\\-")
+            .replace("[","\\[")
+            .replace("]","\\]")
+            .replace("`","\\`")
+            .replace("\\","")
+    }
     private infix fun String.embedNameToUrl(prefix:String):String{
         return "${prefix}${this}"
     }
