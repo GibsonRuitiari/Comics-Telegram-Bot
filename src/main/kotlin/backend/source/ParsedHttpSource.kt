@@ -33,6 +33,12 @@ internal abstract class ParsedHttpSource:HttpSource() {
         }
     }
 
+    override fun parseSearchComicsParse(response: Response): List<SManga> {
+        return response.asJsoup().run {
+            val mangas = mangaCompletedFromDocument(this)
+            return@run mangas
+        }
+    }
     override fun mangaDetailsParse(response: Response): SMangaInfo {
         return mangaDetailsParse(response.asJsoup())
 

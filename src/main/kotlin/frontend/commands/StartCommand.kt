@@ -1,12 +1,7 @@
 package frontend.commands
 
-import com.elbekD.bot.Bot
-import com.elbekD.bot.http.TelegramApiError
-import com.elbekD.bot.types.Message
-import frontend.Command
-import frontend.Result
 
-object StartCommand: Command {
+/*object StartCommand: Command {
     override val commandName: String
         get() = "start"
     override val commandDescription: String
@@ -23,4 +18,4 @@ object StartCommand: Command {
        }
     }
 
-}
+}*/

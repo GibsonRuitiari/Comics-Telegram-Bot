@@ -1,8 +1,7 @@
 package frontend
 
-import com.elbekD.bot.Bot
 
-class StateMachine constructor(private val bot:Bot){
+/*class StateMachine constructor(private val bot:Bot){
     private var initialState:State = State.BlankState // initial state
     private var _currentState = initialState
 
@@ -23,4 +22,4 @@ class StateMachine constructor(private val bot:Bot){
        }
    }
 
-}
+}*/

@@ -1,10 +1,7 @@
 package backend.source
 
 
-import backend.comic_models.Genres
-import backend.comic_models.MangaPage
-import backend.comic_models.SMangaChapter
-import backend.comic_models.SMangaInfo
+import backend.comic_models.*
 import backend.constants.baseLink
 import backend.constants.genreBaseLink
 import backend.extensions.GET
@@ -95,6 +92,11 @@ internal abstract class HttpSource: Source {
         emit(parseMangaIssue(response))
     }.flowOn(Dispatchers.IO)
 
+    override fun searchForComic(term: String): Flow<List<SManga>> = flow{
+        val response = client.newCall(mangaSearchRequest(term)).awaitBody()
+        emit(parseSearchComicsParse(response))
+    }.flowOn(Dispatchers.IO)
+
 
     /**
      * Returns the request for the manga comics encapsulated in a manga page
@@ -114,6 +116,9 @@ internal abstract class HttpSource: Source {
     open fun mangaOnGoingComicsRequest(page:Int):Request{
         return GET("$baseUrl/ongoing-comics?page=$page", headers)
     }
+    open fun mangaSearchRequest(term: String):Request{
+        return GET("$baseUrl/advanced-search?key=$term", headers)
+    }
     open fun mangaCompletedComicsRequest(page: Int):Request{
         return GET("$baseUrl/advanced-search?status=CMP&page=$page", headers)
     }
@@ -123,6 +128,7 @@ internal abstract class HttpSource: Source {
 
     protected abstract fun parsePopularAndNewComicsParse(response: Response):MangaPage
     protected abstract fun parseCompletedComicsParse(response: Response):MangaPage
+    protected abstract fun parseSearchComicsParse(response: Response):List<SManga>
     protected abstract fun parseOnGoingComicsAndBasedGenreParse(response: Response):MangaPage
     protected abstract fun parseMangaIssue(response: Response):SMangaChapter
 }

@@ -1,14 +1,8 @@
 package frontend.commands
 
-import com.elbekD.bot.Bot
-import com.elbekD.bot.http.TelegramApiError
-import com.elbekD.bot.types.InlineKeyboardButton
-import com.elbekD.bot.types.InlineKeyboardMarkup
-import com.elbekD.bot.types.Message
-import frontend.Command
-import frontend.Result
 
-object MainMenuCommand: Command {
+
+/*object MainMenuCommand: Command {
     override val commandName: String
         get() = "main_menu"
     override val commandDescription: String
@@ -42,4 +36,4 @@ object MainMenuCommand: Command {
     private const val completedCallbackData="completed_cb"
 
 
-}
+}*/

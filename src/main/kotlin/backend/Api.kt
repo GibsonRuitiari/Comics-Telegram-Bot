@@ -1,9 +1,6 @@
 package backend
 
-import backend.comic_models.Genres
-import backend.comic_models.MangaPage
-import backend.comic_models.SMangaChapter
-import backend.comic_models.SMangaInfo
+import backend.comic_models.*
 import backend.source.Comic
 import kotlinx.coroutines.flow.Flow
 
@@ -46,3 +43,4 @@ val ongoingComics:(page:Int)->Flow<MangaPage> = {it->ComicsWithNumber(it){fetchO
 val completedComics:(page:Int)->Flow<MangaPage> ={it->ComicsWithNumber(it){fetchCompletedComics(it)} }
 val comicDetails:(url:String)->Flow<SMangaInfo> = { it-> ComicWithUrl(it){fetchMangaDetails(it)} }
 val comicPages:(url:String) -> Flow<SMangaChapter> = { it-> ComicWithUrl(it){fetchComicPages(it)}}
+val search:(term:String)->Flow<List<SManga>> = {it-> ComicWithUrl(it){searchForComic(term = it)} }

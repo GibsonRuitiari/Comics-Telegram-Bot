@@ -1,9 +1,6 @@
 package backend.source
 
-import backend.comic_models.Genres
-import backend.comic_models.MangaPage
-import backend.comic_models.SMangaChapter
-import backend.comic_models.SMangaInfo
+import backend.comic_models.*
 import kotlinx.coroutines.flow.Flow
 
 internal interface Source {
@@ -30,6 +27,8 @@ internal interface Source {
      * Returns a flow of the completed comics encapsulated in a MangaPage
      */
     fun fetchCompletedComics(page:Int):Flow<MangaPage>
+
+    fun searchForComic(term:String):Flow<List<SManga>>
     /**
      * Returns a flow of the manga chapter encapsulated in a MangaPage
      * a manga chapter consists of list of pages and the total number of

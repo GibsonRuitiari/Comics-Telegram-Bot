@@ -201,6 +201,9 @@ import java.util.*
         return completedMangaList
 
     }
-    private fun String.cleanIssueLink():String =  "${this}/full"
+
+
+
+     private fun String.cleanIssueLink():String =  "${this}/full"
 }
 

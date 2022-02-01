@@ -1,26 +1,8 @@
 package frontend.commands
 
-import backend.comicDetails
-import backend.comic_models.SManga
-import backend.ongoingComics
-import com.elbekD.bot.Bot
-import com.elbekD.bot.feature.chain.chain
-import com.elbekD.bot.http.TelegramApiError
-import com.elbekD.bot.types.InlineKeyboardButton
-import com.elbekD.bot.types.InlineKeyboardMarkup
-import com.elbekD.bot.types.Message
-import com.elbekD.bot.util.Action
-import frontend.Command
-import frontend.Result
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.*
-import mu.KotlinLogging
-import java.io.IOException
-import java.time.LocalDateTime
 
-object OnGoingComicsCommand:Command {
+
+/*object OnGoingComicsCommand:Command {
     private  val logger = KotlinLogging.logger {  }
     private const val prefix="https://viewcomics.me/comic/"
     private const val dummyViewUri="http://view_url"
@@ -155,4 +137,4 @@ object OnGoingComicsCommand:Command {
     private const val unknownErrorMsg ="Unknown error occurred please try again later"
     private val networkErrorMsg ="Yikes!\uD83E\uDD39 Our elves have notified us that your network is unstable/bad. ${System.lineSeparator()}Please try the request again"
 
-}
+} */

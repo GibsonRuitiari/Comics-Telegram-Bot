@@ -1,12 +1,8 @@
 package frontend
 
-import com.elbekD.bot.Bot
-import com.elbekD.bot.types.BotCommand
-import frontend.commands.MainMenuCommand
-import frontend.commands.OnGoingComicsCommand
-import frontend.commands.StartCommand
 
-class BotController {
+
+/*class BotController {
     private val botToken = "1814039661:AAEX69rqHYpFfkL6ZE7kG7RX49GQr50iTO4"
     private val username = "@DummyB_Bot"
     private val bot:Bot by lazy {
@@ -30,4 +26,4 @@ class BotController {
        bot.start()
     }
 
-}
+}*/
