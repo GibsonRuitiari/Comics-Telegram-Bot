@@ -8,6 +8,11 @@ import com.elbekD.bot.util.AllowedUpdate
 
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.flow.*
+import java.io.*
+import java.net.URL
+import java.util.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
@@ -33,21 +38,41 @@ fun main() {
              observable=copyOfComicCommands
              bot.sendMessage(msg.chat.id,message,parseMode = "Markdown")
          }
-      //   val message = list_.joinToString(System.lineSeparator()) { "[/v_$it](http://start_url)" }
-        // bot.sendMessage(msg.chat.id,message, parseMode = "Markdown")
+
      }
+    val imgAdress ="https://blogger.googleusercontent.com/img/a/AVvXsEhUm2Y2Nwo6dKi_8kRuld6NtNGvP9eOBXXaZBin42EvJKq-vklK1DfulEWM28uv4Zgw8gKCmCQescYeTBWqp1nzIvGOa30TlyudPxNavRUkmHQqkLIWKQ7gagFWTkWEjv7EpxFwkIfGxIBpif-mw4cbrCeYSJvl3EbDKkfCaOeESW-9ieER1TRGyLCp"
+
     bot.onCommand("/photo"){msg,opts ->
-         val imgAdress ="https://blogger.googleusercontent.com/img/a/AVvXsEhUm2Y2Nwo6dKi_8kRuld6NtNGvP9eOBXXaZBin42EvJKq-vklK1DfulEWM28uv4Zgw8gKCmCQescYeTBWqp1nzIvGOa30TlyudPxNavRUkmHQqkLIWKQ7gagFWTkWEjv7EpxFwkIfGxIBpif-mw4cbrCeYSJvl3EbDKkfCaOeESW-9ieER1TRGyLCp"
-        bot.sendMessage(msg.chat.id," [/v_j]($imgAdress)${System.lineSeparator()} hello there hehehe")
+       //  val imgAdress ="https://blogger.googleusercontent.com/img/a/AVvXsEhUm2Y2Nwo6dKi_8kRuld6NtNGvP9eOBXXaZBin42EvJKq-vklK1DfulEWM28uv4Zgw8gKCmCQescYeTBWqp1nzIvGOa30TlyudPxNavRUkmHQqkLIWKQ7gagFWTkWEjv7EpxFwkIfGxIBpif-mw4cbrCeYSJvl3EbDKkfCaOeESW-9ieER1TRGyLCp"
+          val text="<a href=$imgAdress></a>"
+        val textToBeSent ="[photo]($imgAdress)"
+        bot.sendMessage(msg.chat.id," $text hello there hehehe", parseMode = "HTML")
+        bot.sendMessage(msg.chat.id,"hey hey ${System.lineSeparator()} $textToBeSent", parseMode = "Markdown")
     }
     println(observable.size)
     println(issuesListObservable.size)
-    bot.start()
+  //  bot.start()
+//    val a=ClassLoader.getSystemResource("first.png")
+//    val b=ClassLoader.getSystemResource("second.png")
+//    val c=ClassLoader.getSystemResource("third.png")
+//    val streamArray = arrayOf(URL(imgAdress).file,URL(imgAdress).file,URL(imgAdress).file)
+//    var out=ZipOutputStream(BufferedOutputStream(FileOutputStream("second.zip")))
+//    var data = ByteArray(1024)
+//    for (file in streamArray){
+//
+//        val fi = FileInputStream(file)
+//        var origin = BufferedInputStream(fi)
+//        var entry = ZipEntry(file.substring(file.lastIndexOf("/")))
+//        out.putNextEntry(entry)
+//        origin.copyTo(out,1024)
+//        origin.close()
+//    }
+//    out.close()
 
 }
+
 private fun Bot.observeIssueLinkList(list: List<Pair<String, String>>){
     list.forEach {
-
         onCommand("/vd_${it.second}"){message, _ ->
            val fullUrl ="https://viewcomics.me/${it.first}"
             sendMessage(message.chat.id,fullUrl)
@@ -55,7 +80,6 @@ private fun Bot.observeIssueLinkList(list: List<Pair<String, String>>){
     }
 }
 private fun Bot.observeList(list:List<Pair<String,String>>,action:(List<Pair<String,String>>)->Unit){
-
         list.forEach {
             onCommand("/v_${it.first}"){
                 msg,_->
@@ -66,10 +90,12 @@ private fun Bot.observeList(list:List<Pair<String,String>>,action:(List<Pair<Str
                             println(it.cause)
                         }
                     }.collect{
-                    val (caption,issueCommandsList)=constructComicDetailsMessage(it)
+                    val (details,issueCommandsList)=constructComicDetailsMessage(it)
                     action(issueCommandsList)
                   try {
-                      sendPhoto(msg.chat.id,it.comicImagePosterLink, caption, parseMode = "Markdown")
+                      val caption= "$details \n [photo](${it.comicImagePosterLink})"
+                      sendMessage(msg.chat.id,caption, parseMode = "Markdown")
+                     // sendPhoto(msg.chat.id,it.comicImagePosterLink, caption, parseMode = "Markdown")
                   }catch (ex:TelegramApiError){
                       throw ex
                   }
@@ -78,11 +104,7 @@ private fun Bot.observeList(list:List<Pair<String,String>>,action:(List<Pair<Str
             }
         }
 }
-private fun String.returnCommandFromComicLink():Pair<String,String>{
-    val originalName= replace("https://viewcomics.me/comic/","")
-    val modifiedLink=originalName.replace("-","_").split("_").joinToString(separator = "") { it.take(1) }
-    return originalName to modifiedLink
-}
+
 // issue link--> "https://viewcomics.me/x-deaths-of-wolverine/issue-1"
 // returns xdowi1 so we just need to add i_ to the returned link to make it a command
 private fun String.returnIssueLink():Pair<String,String>{

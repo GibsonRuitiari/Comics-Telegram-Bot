@@ -1,8 +1,21 @@
 package frontend.commands
 
+import backend.ongoingComics
+import com.elbekD.bot.Bot
+import com.elbekD.bot.http.TelegramApiError
+import com.elbekD.bot.types.InlineKeyboardButton
+import com.elbekD.bot.types.InlineKeyboardMarkup
+import com.elbekD.bot.types.Message
+import frontend.Command
+import frontend.Result
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.onCompletion
+import mu.KotlinLogging
+import java.time.LocalDateTime
+import kotlin.properties.Delegates
 
 
-/*object OnGoingComicsCommand:Command {
+object OnGoingComicsCommand: Command {
     private  val logger = KotlinLogging.logger {  }
     private const val prefix="https://viewcomics.me/comic/"
     private const val dummyViewUri="http://view_url"
@@ -12,129 +25,80 @@ package frontend.commands
         get() = "Delivers/Shows the current on going comics"
     override val commandHelpMessage: String
         get() = "type /on_going_comics to get a list of the current on going comics"
-    private var page=1
-
-    override suspend fun onMessageDoAction(bot: Bot, message: Message, options: String?): Result = coroutineScope {
-       // fetch data asynchronously
-        val comics=async(Dispatchers.IO) {
-            var pair=Pair<List<SManga>,String?>(emptyList(),null);ongoingComics(page).catch {
-            logger.error { "${LocalDateTime.now()} error fetching manga ${it.message}" }
-
-            val errMsg =if (it is IOException) networkErrorMsg else unknownErrorMsg
-            pair= Pair(emptyList(),errMsg)}
-            .collect{ pair= Pair(it.mangas,null)}
-            return@async pair}
-         val (mangas, errorMsg)=comics.await()
-            if (errorMsg!=null){
-                // failed so return here
-                return@coroutineScope Result(false, errorMsg)
-            }
-        logger.info { "[*] ${LocalDateTime.now()}: Successfully fetched comics ${System.lineSeparator()} comic size: ${mangas.size}" }
-        // we did not fail
-       return@coroutineScope try {
-            with(bot){
-                val comicListString=mangas.joinToString(separator = "\n"){
-                    val modifiedUrl = it.comicLink.returnModifiedUrl()// returns a name that can be embedded back to the url to form a complete url
-                    "★ *${it.comicName}* ${System.lineSeparator()} view: [/vw$modifiedUrl](http://view_url) ${System.lineSeparator()}"
-                }
-
-
-                // 1 row 3 columns
-                // prev-back-next
-                val firstRow = listOf(InlineKeyboardButton("<< prev", callback_data = previousOngoingComicsCb),
-                    InlineKeyboardButton("next >>", callback_data = nextOngoingComicsCb))
-                val onGoingComicsMarkup = InlineKeyboardMarkup(listOf(firstRow))
-                sendMessage(message.chat.id,
-                    markup =onGoingComicsMarkup,
-                    text = comicListString.replace("]","\\]").replace(")","\\)").replace("-","\\-").replace("(","\\(").replace(".","\\.").replace("_","\\_")+
-                            System.lineSeparator()
-                ).get()
-
-            //   this  onComicClicked mangas.map { it.comicLink.returnModifiedUrl() }
-            }
-            Result(true,null)
-        }catch (ex:TelegramApiError){
-            logger.error { "${LocalDateTime.now()} error:${ex.message}" }
-            Result(false,ex.message)
-        }
-
+    private val pageNumber = MutableStateFlow(0)
+    // keep track of clicked comics
+    private var clickedComics by Delegates.observable(emptyList<Pair<String,String>>()){
+            property, oldValue, newValue ->
     }
-    private fun Bot.handleCallbacks(callbackData:List<String>){
-        callbackData.forEach {
-            cb->
-            onCallbackQuery(cb){
-                query->
-                answerCallbackQuery(query.id,"cb answered")
-                val chatId= query.message?.chat?.id ?: return@onCallbackQuery
-                // send a
-                when {
-                    cb.contentEquals(nextOngoingComicsCb) -> {
-                    }
-                    cb.contentEquals(previousOngoingComicsCb) -> {
-                    }
+    /*
+     First row, so it will be something like this
+     <button> <button>
+     */
+    private const val prevCallbackQueryData ="prev_cb"
+    private const val nextCallbackQueryData ="next_cb"
+    private val firstRowOfInlineKeyBoards= listOf(InlineKeyboardButton("<< prev", callback_data = prevCallbackQueryData),
+        InlineKeyboardButton("next >>", callback_data = nextCallbackQueryData))
+    private val onGoingComicsKeyboardMarkup = InlineKeyboardMarkup(listOf(firstRowOfInlineKeyBoards))
 
-                }
-
-            }
+    // start handle call back queries
+    private fun Bot.onPaginationButtonsClicked(pageNumber:MutableStateFlow<Int>){
+        //  next button
+        onCallbackQuery(nextCallbackQueryData){
+            answerCallbackQuery(it.id)
+            pageNumber.value +=1
+            val chatId= it.message?.chat?.id ?: return@onCallbackQuery
+            updateOnGoingComicsOnPaginationButtonButtonClicked(chatId,
+                it.message?.message_id,it.inline_message_id)
         }
-
-    }
-    private infix fun Bot.onComicClicked(commands: List<String>){
-        commands.forEach {
-            // each command ==  /vw_$modifiedUrl
-            onCommand(it){msg,_->
-                sendChatAction(msg.chat.id,Action.Typing)
-                val comicName = it.removePrefix("/vw_") // can be embedded back to the original url
-                val fullUrl =  comicName embedNameToUrl prefix // embed the name back to the url
-
-                comicDetails(fullUrl).catch { cause ->
-                    logger.error { "${LocalDateTime.now()}: ${cause.message} error while fetching comic details for $comicName" }
-                    if (cause is IOException) {
-                        // a http exception so tell the user to retry
-                        sendMessage(
-                            msg.chat.id, networkErrorMsg)
-                    }
-                }.collect { info ->
-                    logger.info { "${LocalDateTime.now()} succeeded fetching comic details for $comicName" }
-                    val genres = info.genres.joinToString(separator = " ") { genre -> "#$genre" }
-                    val comicInfoMsg = """
-                        Showing comic details for ${info.comicAlternateName} ${System.lineSeparator()}
-                        Description: ${info.comicDescription} ${System.lineSeparator()}
-                        Author: ${info.comicAuthor}${System.lineSeparator()}
-                        $genres ${System.lineSeparator()}
-                        Status: ${info.comicStatus} ${System.lineSeparator()}
-                        Views:  ${info.comicViews} ${System.lineSeparator()}
-                        Released: ${info.yearOfRelease} ${System.lineSeparator()}
-                        *Issues* ${System.lineSeparator()}
-                        ${info.issues.joinToString { issue -> "⦁ $issue \n"}
-                    }
-                    """.trimIndent()
-                    logger.info { "${LocalDateTime.now()} comic details \n $comicInfoMsg" }
-                    sendMessage(msg.chat.id, comicInfoMsg, parseMode = "MarkdownV2")
-                }
-            }
+        // previous button
+        onCallbackQuery(prevCallbackQueryData) {
+            answerCallbackQuery(it.id)
+            val chatId = it.message?.chat?.id ?: return@onCallbackQuery
+            pageNumber.value = if (pageNumber.value>1) pageNumber.value-1 else 1
+           updateOnGoingComicsOnPaginationButtonButtonClicked(chatId,
+           it.message?.message_id,it.inline_message_id)
         }
     }
-    // returns a name that can be embedded back to the url to form a complete url also it escapes some characters
-    private fun String.returnModifiedUrl():String{
-      return  this.removePrefix(prefix)
+    private suspend fun fetchAndParseOngoingComics(action:(List<Pair<String,String>>)->Unit):String{
+        var contentMessage=""
+         ongoingComics(pageNumber.value).onCompletion {
+             cause ->
+             logger.error { "${LocalDateTime.now()}: The following error occurred while fetching on going comics: ${cause?.message}" }
+         }.collect{mangaPage->
+             val mangas = mangaPage.mangas
+              contentMessage=parseMangasAndReturnTheContentMessage(mangas)
+              val commandsPairList=mangas.map { it.comicLink.constructComicCommandsFromComicLinks() }
+             action(commandsPairList)
+             logger.info { "${LocalDateTime.now()} commands pair list ${commandsPairList.joinToString(",")}" }
+             logger.info { "${LocalDateTime.now()}: content message is $contentMessage" }
+
          }
-    private fun String.escapeReservedCharacters():String{
-        return replace("(", "\\(")
-            .replace(")","\\)")
-            .replace("-", "\\-")
-            .replace("[","\\[")
-            .replace("]","\\]")
-            .replace("`","\\`")
-            .replace("\\","")
+        return contentMessage
     }
-    private infix fun String.embedNameToUrl(prefix:String):String{
-        return "${prefix}${this}"
+    private suspend fun Bot.updateOnGoingComicsOnPaginationButtonButtonClicked(chatId: Long,
+                                                                               messageId:Int?,
+                                                                               inlineMessageId:String?){
+        val contentMessage = fetchAndParseOngoingComics {
+            clickedComics=it }
+        editMessageText(chatId, messageId = messageId, inlineMessageId =inlineMessageId,
+        contentMessage, parseMode = "Markdown", markup = onGoingComicsKeyboardMarkup)
+    }
+    // send the on going comics
+    private suspend fun Bot.showOnGoingComics(chatId: Long){
+        val contentMessage= fetchAndParseOngoingComics{
+            clickedComics = it
+        }
+        val message="*Showing On going Comics* \n\n$contentMessage"
+        sendMessage(chatId,message, parseMode = "Markdown", markup = onGoingComicsKeyboardMarkup)
+    }
+    override suspend fun onMessageDoAction(bot: Bot, message: Message, options: String?): Result {
+       try {
+           bot.showOnGoingComics(message.chat.id)
+           bot.onPaginationButtonsClicked(pageNumber)
+       }catch (ex:TelegramApiError){
+           logger.error { "${LocalDateTime.now()} error occurred while sending the message ${ex.cause}" }
+       }
+       return Result(true,"")
     }
 
-    private const val previousOngoingComicsCb ="previous_cb"
-    private const val nextOngoingComicsCb ="next_cb"
-    private const val unknownErrorMsg ="Unknown error occurred please try again later"
-    private val networkErrorMsg ="Yikes!\uD83E\uDD39 Our elves have notified us that your network is unstable/bad. ${System.lineSeparator()}Please try the request again"
-
-} */
+  }
