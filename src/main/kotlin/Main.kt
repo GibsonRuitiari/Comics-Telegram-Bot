@@ -1,11 +1,15 @@
+import com.elbekD.bot.Bot
 import frontend.BotController
 
 
 fun main() {
+     val x=BotController()
+    x.initializeCommands()
+    x.onCreate()
 
-    val botController = BotController()
-    botController.onCreate()
-    botController.initializeCommands()
+
+
+
 
 
 //    val streamArray = arrayOf(URL(imgAdress).file,URL(imgAdress).file,URL(imgAdress).file)

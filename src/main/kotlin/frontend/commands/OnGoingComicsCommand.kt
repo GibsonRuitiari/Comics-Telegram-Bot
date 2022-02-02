@@ -1,5 +1,6 @@
 package frontend.commands
 
+import backend.comic_models.Genres
 import com.elbekD.bot.Bot
 import com.elbekD.bot.http.TelegramApiError
 import com.elbekD.bot.types.Message
@@ -10,6 +11,8 @@ import kotlin.properties.Delegates
 
 
 object OnGoingComicsCommand: PaginatedCommands {
+    override val genres: Genres?
+        get() = null
     override val nextCallbackQueryData: String
         get() ="ongoing_comics_next_cb"
     override val prevCallbackQueryData: String

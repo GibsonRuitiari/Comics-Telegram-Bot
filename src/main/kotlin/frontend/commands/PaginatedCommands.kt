@@ -1,10 +1,8 @@
 package frontend.commands
 
+import backend.*
+import backend.comic_models.Genres
 import backend.comic_models.MangaPage
-import backend.completedComics
-import backend.latestComics
-import backend.ongoingComics
-import backend.popularComics
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.InlineKeyboardButton
 import com.elbekD.bot.types.InlineKeyboardMarkup
@@ -21,6 +19,8 @@ interface PaginatedCommands:Command {
     val prevCallbackQueryData:String
     val commandType:CommandType
     var clickedComicsObservable:List<Pair<String,String>>
+    // to be implemented by genre command
+    val genres:Genres?
     val logger:KLogger
     get() = KotlinLogging.logger {  }
 
@@ -99,6 +99,7 @@ interface PaginatedCommands:Command {
             is Ongoing->"*Showing On going Comics*"
             is Popular->"*Showing Popular Comics*"
             is Latest->"*Showing Latest Comics*"
+            is ByGenre->"*Showing Comics By Genre*"
         }
     }
 
@@ -127,8 +128,37 @@ interface PaginatedCommands:Command {
                 contentMessage = msgToBeSent
                 errorMessage=errMsg
             }
+            is ByGenre->{
+               require(genres!=null){
+                    "Genre cannot be null" }
+               val genre= genres!!
+                val(msgToBeSent,errMsg)=parseComicByGenreFlow(pageNumber,genre,action)
+                contentMessage = msgToBeSent
+                errorMessage=errMsg
+            }
         }
       return  contentMessage to errorMessage
+    }
+    private suspend inline fun parseComicByGenreFlow(pageNumber: Int,genres: Genres,crossinline block1:(List<Pair<String,String>>)->Unit):Pair<String,String>{
+        var contentMessage = ""
+        var errorMessage=""
+        comicsByGenre(pageNumber,genres).onCompletion {
+                cause->
+            cause?.let {
+                logger.error { "${LocalDateTime.now()}: The following error occurred while fetching paginated comics: ${cause.message}" }
+                errorMessage= parseThrowableAndGiveErrorMessage(cause)
+            }
+
+        }.collect { mangaPage ->
+            val mangas = mangaPage.mangas
+            contentMessage = parseMangasAndReturnTheContentMessage(mangas)
+            val commandsPairList=mangas.map { it.comicLink.constructComicCommandsFromComicLinks() }
+            block1(commandsPairList)
+            logger.info {  "${LocalDateTime.now()}: content message is $contentMessage"  }
+        }
+
+        return contentMessage to errorMessage
+
     }
     private suspend inline fun parseFlow(pageNumber: Int, crossinline block1:(number:Int)->Flow<MangaPage>,
                                          crossinline block2:(List<Pair<String,String>>)->Unit):Pair<String,String>{

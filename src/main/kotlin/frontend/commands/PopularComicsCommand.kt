@@ -1,5 +1,6 @@
 package frontend.commands
 
+import backend.comic_models.Genres
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.Message
 import frontend.Result
@@ -8,6 +9,8 @@ import java.time.LocalDateTime
 import kotlin.properties.Delegates
 
 object PopularComicsCommand:PaginatedCommands {
+    override val genres: Genres?
+        get() = null
     private val pageNumber = MutableStateFlow(1)
     private var botInstance:Bot?=null
     override val nextCallbackQueryData: String
