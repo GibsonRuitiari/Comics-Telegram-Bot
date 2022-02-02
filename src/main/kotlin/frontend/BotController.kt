@@ -2,6 +2,7 @@ package frontend
 
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.BotCommand
+import frontend.commands.CompletedComicsCommand
 import frontend.commands.OnGoingComicsCommand
 
 
@@ -18,7 +19,7 @@ class BotController {
     }
     fun initializeCommands(){
         // a list of inputs
-        val commandsList = listOf(OnGoingComicsCommand)
+        val commandsList = listOf(OnGoingComicsCommand,CompletedComicsCommand)
        commandsList.forEach { stateMachine.onEvent(it) }
         with(bot){
             // handle each command and log the state
