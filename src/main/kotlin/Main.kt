@@ -5,6 +5,7 @@ import backend.search
 import com.elbekD.bot.Bot
 import com.elbekD.bot.http.TelegramApiError
 import com.elbekD.bot.util.AllowedUpdate
+import frontend.BotController
 
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.flow.*
@@ -23,6 +24,9 @@ fun main() {
          allowedUpdates = listOf(AllowedUpdate.Message,AllowedUpdate.Message,
              AllowedUpdate.CallbackQuery)
      }
+    val botController = BotController()
+    botController.onCreate()
+    botController.initializeCommands()
     var issuesListObservable by Delegates.observable(emptyList<Pair<String,String>>()){
         property, oldValue, newValue ->
         println("old value:$oldValue new value$newValue")
