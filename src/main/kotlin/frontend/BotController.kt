@@ -3,6 +3,7 @@ package frontend
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.BotCommand
 import frontend.commands.*
+import okhttp3.internal.toImmutableMap
 
 
 class BotController {
@@ -20,8 +21,10 @@ class BotController {
         // a list of inputs
         val startCommand = StartCommand.registerAsCommand()
         val helpCommand = HelpCommand.registerAsCommand()
+        val genresCommand = GenresCommand.registerAsCommand()
         val commandsList = listOf(OnGoingComicsCommand,
-            CompletedComicsCommand, SearchCommand,PopularComicsCommand,LatestComicsCommand)
+            CompletedComicsCommand, SearchCommand,PopularComicsCommand,LatestComicsCommand,
+        GenreCommand)
        commandsList.forEach { stateMachine.onEvent(it) }
         with(bot){
             // handle each command and log the state
@@ -29,6 +32,7 @@ class BotController {
             val botCommands = commandsList.map { BotCommand(command = "/${it.commandName}",description = it.commandDescription) }.toMutableList()
             botCommands+=startCommand
             botCommands += helpCommand
+            botCommands += genresCommand
             setMyCommands(botCommands)
         }
     }
@@ -37,6 +41,7 @@ class BotController {
         val commandsMap= commands.associate { it.commandName to it.commandHelpMessage }.toMutableMap()
         commandsMap[StartCommand.commandName] = StartCommand.commandHelpMessage
         commandsMap[HelpCommand.commandName] = HelpCommand.commandHelpMessage
+        commandsMap[GenresCommand.commandName] = GenresCommand.commandHelpMessage
         onCommand("/${StartCommand.commandName}"){
             message, _ ->
             StartCommand.onMessageDoAction(this,message)
@@ -45,6 +50,10 @@ class BotController {
             message, s ->
             HelpCommand.onMessageDoAction(this,message,s,
             commandsMap)
+        }
+        onCommand("/${GenresCommand.commandName}"){
+            message, _ ->
+            GenresCommand.onMessageDoAction(this,message)
         }
     }
     fun onCreate(){

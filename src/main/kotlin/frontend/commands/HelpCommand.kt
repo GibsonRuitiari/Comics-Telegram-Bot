@@ -52,6 +52,7 @@ object HelpCommand {
         /${CompletedComicsCommand.commandName} - get all the completed comics
         /${OnGoingComicsCommand.commandName} - get all the ongoing comics
         /${SearchCommand.commandName}  <comic name> - search for a given comic eg /search hotell
-        /help <command-name> - shows the help message associated with the command given
+        /${GenresCommand.commandName} - lists all the available genres for use
+        /${GenreCommand.commandName} - gets all the comics based on a genre eg /${GenreCommand.commandName} horror
     """.trimIndent()
 }

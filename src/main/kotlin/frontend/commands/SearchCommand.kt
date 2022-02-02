@@ -40,10 +40,13 @@ object SearchCommand:Command {
                      bot.sendMessage(message.chat.id,parseThrowableAndGiveErrorMessage(cause))
                     }
                 }.collect{
-                val msg=parseMangasAndReturnTheContentMessage(it)
-                val commandsPairList = it.map { it.comicLink.constructComicCommandsFromComicLinks()}
-                clickedComicsObservable = commandsPairList
-                bot.sendMessage(message.chat.id,msg,parseMode = "Markdown")
+                    if (it.isNotEmpty()){
+                        val msg=parseMangasAndReturnTheContentMessage(it)
+                        val commandsPairList = it.map { it.comicLink.constructComicCommandsFromComicLinks()}
+                        clickedComicsObservable = commandsPairList
+                        bot.sendMessage(message.chat.id,msg,parseMode = "Markdown")
+                    }else bot.sendMessage(message.chat.id,"shucks our elves did not find any comic with such a name. please counter check the name and try again")
+
             }
             Result(true,null)
         }
