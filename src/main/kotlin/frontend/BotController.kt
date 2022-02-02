@@ -2,8 +2,7 @@ package frontend
 
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.BotCommand
-import frontend.commands.CompletedComicsCommand
-import frontend.commands.OnGoingComicsCommand
+import frontend.commands.*
 
 
 class BotController {
@@ -19,11 +18,23 @@ class BotController {
     }
     fun initializeCommands(){
         // a list of inputs
-        val commandsList = listOf(OnGoingComicsCommand,CompletedComicsCommand)
+        val startCommand = StartCommand.registerAsCommand()
+        val commandsList = listOf(OnGoingComicsCommand,
+            CompletedComicsCommand, SearchCommand,PopularComicsCommand,LatestComicsCommand)
        commandsList.forEach { stateMachine.onEvent(it) }
         with(bot){
             // handle each command and log the state
-           setMyCommands(commandsList.map { BotCommand(command = "/${it.commandName}",description = it.commandDescription) })
+            initializeSpecialCommands()
+            val botCommands = commandsList.map { BotCommand(command = "/${it.commandName}",description = it.commandDescription) }.toMutableList()
+            botCommands+=startCommand
+            setMyCommands(botCommands)
+        }
+    }
+    // help and start command
+    private fun Bot.initializeSpecialCommands(){
+        onCommand("/${StartCommand.commandName}"){
+            message, _ ->
+            StartCommand.onMessageDoAction(this,message)
         }
     }
     fun onCreate(){

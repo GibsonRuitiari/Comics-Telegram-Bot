@@ -2,7 +2,9 @@ package frontend.commands
 
 import backend.comic_models.MangaPage
 import backend.completedComics
+import backend.latestComics
 import backend.ongoingComics
+import backend.popularComics
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.InlineKeyboardButton
 import com.elbekD.bot.types.InlineKeyboardMarkup
@@ -95,6 +97,8 @@ interface PaginatedCommands:Command {
         return when(commandType){
             is Completed->"*Showing Completed Comics*"
             is Ongoing->"*Showing On going Comics*"
+            is Popular->"*Showing Popular Comics*"
+            is Latest->"*Showing Latest Comics*"
         }
     }
 
@@ -112,6 +116,16 @@ interface PaginatedCommands:Command {
                 contentMessage = msgToBeSent
                 errorMessage=errMsg
 
+            }
+            is Popular->{
+                val(msgToBeSent,errMsg)=parseFlow(pageNumber, block1 = popularComics, block2 = action)
+                contentMessage = msgToBeSent
+                errorMessage=errMsg
+            }
+            is Latest->{
+                val(msgToBeSent,errMsg)=parseFlow(pageNumber, block1 = latestComics, block2 = action)
+                contentMessage = msgToBeSent
+                errorMessage=errMsg
             }
         }
       return  contentMessage to errorMessage
