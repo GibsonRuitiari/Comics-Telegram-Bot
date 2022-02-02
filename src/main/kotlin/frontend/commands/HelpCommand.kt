@@ -44,10 +44,10 @@ object HelpCommand {
     """.trimIndent()
     private val HELP_MSG =
         """
-    Available commands:
+         Available commands:
         /start - summons the bot
         /help  - show this usage guide
-        /${LatestComicsCommand.commandName} <command> - show the latest comics
+        /${LatestComicsCommand.commandName}  - show the latest comics
         /${PopularComicsCommand.commandName}  - get all the popular comics of our time
         /${CompletedComicsCommand.commandName} - get all the completed comics
         /${OnGoingComicsCommand.commandName} - get all the ongoing comics

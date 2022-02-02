@@ -86,7 +86,7 @@ import java.util.*
             }
 
             when{
-                latestEpisodeLink.isNullOrEmpty()->{
+                latestEpisodeLink.isEmpty()->{
                     // we are dealing with popular manga  not new mangas
                     Triple(names, comicLinks, imageLinks).iterator().forEach {
                         val manga = SManga.create()
