@@ -183,7 +183,7 @@ import java.util.*
                 it.attr("href")
             }
             val completedMangaNames = comicLinks.map {
-                it.split("comic").last().replace("/","").replace("-","")
+                it.split("comic").last().replace("/","").replace("-"," ")
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()}
             }
 

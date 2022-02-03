@@ -14,7 +14,7 @@ object GenreCommand:PaginatedCommands {
     override val prevCallbackQueryData: String
         get() = "by_genre_prev_cb"
     override val commandType: CommandType
-        get() = ByGenre
+        get() = CommandType.ByGenre
     private val pageNumber = MutableStateFlow(1)
     private val currentGenre= MutableStateFlow(Genres.ACTION)
     private var botInstance:Bot?=null
@@ -52,5 +52,7 @@ object GenreCommand:PaginatedCommands {
          }else bot.sendMessage(message.chat.id,"Kindly follow the command with a genre")
         return Result(true,null)
     }
+
+    override val index: MutableStateFlow<Int> = MutableStateFlow(0)
 
 }

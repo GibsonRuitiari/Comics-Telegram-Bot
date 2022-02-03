@@ -5,6 +5,7 @@ import com.elbekD.bot.Bot
 import com.elbekD.bot.types.Message
 import frontend.Command
 import frontend.Result
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onCompletion
 import mu.KotlinLogging
 import java.time.LocalDateTime
@@ -32,6 +33,7 @@ object SearchCommand:Command {
             bot.sendMessage(message.chat.id,"\uD83D\uDE35 Search parameter cannot be blank!Please try again")
             Result(true,null)
         }else{
+            logger.info { "search params: $options" }
             search(options)
                 .onCompletion {
                     cause->
@@ -41,6 +43,7 @@ object SearchCommand:Command {
                     }
                 }.collect{
                     if (it.isNotEmpty()){
+                        logger.info { "these are the results: ${it.joinToString { it.comicName }}" }
                         val msg=parseMangasAndReturnTheContentMessage(it)
                         val commandsPairList = it.map { it.comicLink.constructComicCommandsFromComicLinks()}
                         clickedComicsObservable = commandsPairList
@@ -51,5 +54,6 @@ object SearchCommand:Command {
             Result(true,null)
         }
     }
+    override val index: MutableStateFlow<Int> = MutableStateFlow(0)
 
 }

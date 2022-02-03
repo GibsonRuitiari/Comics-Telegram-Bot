@@ -18,7 +18,7 @@ object PopularComicsCommand:PaginatedCommands {
     override val prevCallbackQueryData: String
         get() = "popular_comics_prev_cb"
     override val commandType: CommandType
-        get() = Popular
+        get() = CommandType.Popular
     override var clickedComicsObservable: List<Pair<String, String>> by Delegates.observable(emptyList()){
             _, _, newValue ->
         logger.info { "${LocalDateTime.now()} new value: $newValue " }
@@ -34,7 +34,7 @@ object PopularComicsCommand:PaginatedCommands {
         get() = "showcases a list of the current popular comics"
     override val commandHelpMessage: String
         get() = "type /$commandName to get a list of current popular comics"
-
+    override val index: MutableStateFlow<Int> = MutableStateFlow(0)
     override suspend fun onMessageDoAction(bot: Bot, message: Message, options: String?): Result {
         botInstance = bot
         with(bot){

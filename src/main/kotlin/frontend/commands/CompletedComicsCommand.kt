@@ -11,6 +11,7 @@ import kotlin.properties.Delegates
 object CompletedComicsCommand:PaginatedCommands {
     override val genres: Genres?
         get() = null
+    override val index: MutableStateFlow<Int> = MutableStateFlow(0)
     override val commandName: String
         get() = "completed_comics"
     override val commandDescription: String
@@ -26,7 +27,7 @@ object CompletedComicsCommand:PaginatedCommands {
         get() = "completed_comics_prev_cb"
 
     override val commandType: CommandType
-        get() = Completed
+        get() = CommandType.Completed
 
     // keep track of clicked comics
     override var clickedComicsObservable: List<Pair<String, String>> by Delegates.observable(emptyList()) { _, _, newValue ->

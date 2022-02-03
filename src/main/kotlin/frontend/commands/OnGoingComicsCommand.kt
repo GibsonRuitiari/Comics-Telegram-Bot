@@ -13,12 +13,13 @@ import kotlin.properties.Delegates
 object OnGoingComicsCommand: PaginatedCommands {
     override val genres: Genres?
         get() = null
+    override val index: MutableStateFlow<Int> = MutableStateFlow(0)
     override val nextCallbackQueryData: String
         get() ="ongoing_comics_next_cb"
     override val prevCallbackQueryData: String
         get() = "ongoing_comics_prev_cb"
     override val commandType: CommandType
-        get() = Ongoing
+        get() = CommandType.Ongoing
     override var clickedComicsObservable: List<Pair<String, String>> by Delegates.observable(emptyList<Pair<String,String>>()){
             _, _, newValue ->
         logger.info { "${LocalDateTime.now()} new value: $newValue " }

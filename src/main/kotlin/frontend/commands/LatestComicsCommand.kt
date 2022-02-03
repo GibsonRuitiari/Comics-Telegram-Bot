@@ -11,6 +11,7 @@ import kotlin.properties.Delegates
 object LatestComicsCommand:PaginatedCommands {
     override val genres: Genres?
         get() = null
+    override val index: MutableStateFlow<Int> = MutableStateFlow(0)
     private val pageNumber = MutableStateFlow(1)
     private var botInstance:Bot?=null
     override val nextCallbackQueryData: String
@@ -18,8 +19,8 @@ object LatestComicsCommand:PaginatedCommands {
     override val prevCallbackQueryData: String
         get() = "latest_comics_prev_cb"
     override val commandType: CommandType
-        get() = Latest
-    override var clickedComicsObservable: List<Pair<String, String>> by Delegates.observable(emptyList<Pair<String,String>>()){
+        get() = CommandType.Latest
+    override var clickedComicsObservable: List<Pair<String, String>> by Delegates.observable(emptyList()){
             _, _, newValue ->
         logger.info { "${LocalDateTime.now()} new value: $newValue " }
         if (botInstance !=null){
