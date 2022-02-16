@@ -20,7 +20,7 @@ object OnGoingComicsCommand: PaginatedCommands {
         get() = "ongoing_comics_prev_cb"
     override val commandType: CommandType
         get() = CommandType.Ongoing
-    override var clickedComicsObservable: List<Pair<String, String>> by Delegates.observable(emptyList<Pair<String,String>>()){
+    override var clickedComicsObservable: List<Pair<String, String>> by Delegates.observable(emptyList()){
             _, _, newValue ->
         logger.info { "${LocalDateTime.now()} new value: $newValue " }
         if (botInstance!=null){

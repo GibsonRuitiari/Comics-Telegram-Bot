@@ -4,7 +4,7 @@ package backend.source
 import backend.comic_models.*
 import backend.constants.baseLink
 import backend.constants.genreBaseLink
-import backend.extensions.GET
+import backend.extensions.get
 import backend.extensions.awaitBody
 import backend.network.NetworkHelper
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +46,7 @@ internal abstract class HttpSource: Source {
      * @param absoluteUrl url of the selected manga.
      */
     open fun mangaDetailsRequest(absoluteUrl: String): Request {
-        return GET(absoluteUrl, headers)
+        return get(absoluteUrl, headers)
     }
     /**
      * Parses the response from the site and returns the details of a manga.
@@ -105,25 +105,25 @@ internal abstract class HttpSource: Source {
      */
     open  fun mangaComicsByCategoryRequest(page: Int, genre: Genres):Request{
         val url="${genreBaseLink}${genre.genreName}?page=$page"
-        return GET(url, headers)
+        return get(url, headers)
     }
     open fun mangaLatestComicsRequest(page: Int):Request{
-        return GET("$baseUrl/new-comics?page=$page", headers)
+        return get("$baseUrl/new-comics?page=$page", headers)
     }
     open fun mangaPopularComicsRequest(page:Int):Request{
-        return GET("$baseUrl/popular-comics?page=$page",headers)
+        return get("$baseUrl/popular-comics?page=$page",headers)
     }
     open fun mangaOnGoingComicsRequest(page:Int):Request{
-        return GET("$baseUrl/ongoing-comics?page=$page", headers)
+        return get("$baseUrl/ongoing-comics?page=$page", headers)
     }
     open fun mangaSearchRequest(term: String):Request{
-        return GET("$baseUrl/advanced-search?key=$term", headers)
+        return get("$baseUrl/advanced-search?key=$term", headers)
     }
     open fun mangaCompletedComicsRequest(page: Int):Request{
-        return GET("$baseUrl/advanced-search?status=CMP&page=$page", headers)
+        return get("$baseUrl/advanced-search?status=CMP&page=$page", headers)
     }
     open fun mangaIssuesComicsRequest(issueLink:String):Request{
-        return GET(issueLink,headers)
+        return get(issueLink,headers)
     }
 
     protected abstract fun parsePopularAndNewComicsParse(response: Response):MangaPage

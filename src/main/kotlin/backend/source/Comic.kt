@@ -14,10 +14,12 @@ import java.util.*
             val animeImage = this.select("div.anime-image ").map { it.select("img").attr("src")}.first()
             val status = this.select("li.status").map { it.text() }.first()
             val genres=this.select("ul.anime-genres li a[href^=https]").map { it.text() }
-            val alternateName = this.select("table.full-table tbody tr:eq(1)").map { it.text() }.joinToString().replace("Alternate Name: ","")
-            val yearOfRelease = this.select("table.full-table tbody tr:eq(2)").map { it.text() }.joinToString().replace("Year of Release: ","")
-            val author = this.select("table.full-table tbody tr:eq(3)").map { it.text() }.joinToString().replace("Author: ","")
-            val views = this.select("table.full-table tbody tr:eq(4)").map { it.text() }.joinToString().replace("Views: ","")
+            val alternateName = this.select("table.full-table tbody tr:eq(1)").joinToString { it.text() }
+                .replace("Alternate Name: ","")
+            val yearOfRelease = this.select("table.full-table tbody tr:eq(2)").joinToString { it.text() }
+                .replace("Year of Release: ","")
+            val author = this.select("table.full-table tbody tr:eq(3)").joinToString { it.text() }.replace("Author: ","")
+            val views = this.select("table.full-table tbody tr:eq(4)").joinToString { it.text() }.replace("Views: ","")
            mangaInfo.comicAuthor = author
             mangaInfo.comicViews = views.toDouble()
             mangaInfo.yearOfRelease = yearOfRelease

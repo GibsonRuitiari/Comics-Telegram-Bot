@@ -1,29 +1,11 @@
-import backend.comicPages
-import backend.extensions.GET
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.onCompletion
-import mu.KotlinLogging
-import org.apache.commons.io.FileUtils
-import utils.uploadComicToRemoteServer
-import java.io.IOException
-import java.net.SocketException
-import java.net.URL
-import java.net.UnknownHostException
-import java.net.http.HttpTimeoutException
-import java.util.concurrent.CompletableFuture
-import java.util.zip.ZipFile
-import kotlin.coroutines.*
-import kotlin.io.path.*
-import kotlin.system.measureTimeMillis
+import frontend.BotController
 
- fun main() = runBlocking {
-     val url="https://viewcomics.me/maniac-of-new-york-the-bronx-is-burning/issue-3" // /full
-     val u=url.replace("https://viewcomics.me/","")
+fun main()  {
 
-     // [maniac-of-new-york-the-bronx-is-burning, issue-3]
-     println("${u.split("/").first().replace("-", " ")} ${u.split("/")[1].replace("issue-","")}")
+     val botController = BotController()
+     botController.onCreate()
+     botController.initializeCommands()
+
 
 
 //    comicPages("https://viewcomics.me/maniac-of-new-york-the-bronx-is-burning/issue-3/full")

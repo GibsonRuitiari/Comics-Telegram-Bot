@@ -7,7 +7,6 @@ import backend.comic_models.SMangaInfo
 import backend.extensions.asJsoup
 import okhttp3.Response
 import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
 
 internal abstract class ParsedHttpSource:HttpSource() {
     override fun parseCompletedComicsParse(response: Response): MangaPage {
@@ -35,8 +34,7 @@ internal abstract class ParsedHttpSource:HttpSource() {
 
     override fun parseSearchComicsParse(response: Response): List<SManga> {
         return response.asJsoup().run {
-            val mangas = mangaCompletedFromDocument(this)
-            return@run mangas
+            return@run mangaCompletedFromDocument(this)
         }
     }
     override fun mangaDetailsParse(response: Response): SMangaInfo {
@@ -56,13 +54,7 @@ internal abstract class ParsedHttpSource:HttpSource() {
      */
     protected abstract fun mangaDetailsParse(document: Document): SMangaInfo
 
-    /**
-     * Common elements' src,title,href
-     * please note: override if necessary!
-     */
-    open fun imageUrlFromElement(element: Element):String = element.attr("src")
-    open fun titleFromElement(element: Element):String = element.attr("title")
-    open fun hrefUrlFromElement(element: Element):String = element.attr("href")
+
 
 
     /**
