@@ -16,8 +16,15 @@ import kotlin.io.path.*
 
 private const val serverUrl = "https://transfer.sh/"
 private const val contentType="application/cbz"
+typealias ReadProgress = (Int)->Unit
 
-suspend  fun uploadComicToRemoteServer(currentPath: Path, logger:KLogger, progressBlock:(Int)->Unit):String? = withContext(Dispatchers.IO){
+/**
+ * Uploads a comic book to the remote server
+ * @param currentPath the path where the comic book is located
+ * @param logger for logging purposes
+ * @param progressBlock for reporting the progress to client/user
+ */
+suspend  fun uploadComicToRemoteServer(currentPath: Path, logger:KLogger, progressBlock:ReadProgress):String? = withContext(Dispatchers.IO){
     val file = FileDataPart.from(currentPath.absolutePathString(), filename = "test_comic",
         contentType = contentType)
     var progressToReport = 0
@@ -48,11 +55,23 @@ suspend  fun uploadComicToRemoteServer(currentPath: Path, logger:KLogger, progre
     return@withContext downloadUrl
 }
 
+/**
+ * Creates a temporary base directory to be used for housing
+ * all downloaded comics. The temporary comics housed will be deleted upon
+ * successful uploads
+ */
  fun createBaseTmpDir(dirName:String="comics_tmp"):Path{
     val tmpBaseDir = Path(System.getProperty("user.dir"),dirName)
     if (tmpBaseDir.notExists()) tmpBaseDir.createDirectory()
     return tmpBaseDir
 }
+
+/**
+ * Like its counterpart above, this creates a zip file (a comic book archive) inside the base directory
+ * Upon successful upload, this zip will be deleted
+ * It is to be noted the zip file ends with .cbz which is the default format for comic books
+ * archive
+ */
  fun createTempZipFile(baseDir: Path, zipFileName: String): ZipFile {
     return ZipFile(baseDir.resolve(zipFileName).toFile())
 }
@@ -74,10 +93,10 @@ suspend  fun uploadComicToRemoteServer(currentPath: Path, logger:KLogger, progre
         }
     }
 }
+// adapted from kotlinx.coroutines.examples.usage
 suspend fun <T> CompletableFuture<T>.await(): T = suspendCoroutine {
     whenComplete { res, ex -> if (ex == null) it.resume(res) else it.resumeWithException(ex) }
 }
-
 
 fun <T> future(context: CoroutineContext = Dispatchers.IO, block: suspend () -> T): CompletableFuture<T> =
     CompletableFutureCoroutine<T>(context).also { block.startCoroutine(completion = it) }
