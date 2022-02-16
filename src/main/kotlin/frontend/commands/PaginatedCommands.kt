@@ -95,11 +95,11 @@ interface PaginatedCommands:Command {
 
     private fun returnComicsListHeaderBasedOnCommandType():String{
         return when(commandType){
-            is Completed->"*Showing Completed Comics*"
-            is Ongoing->"*Showing On going Comics*"
-            is Popular->"*Showing Popular Comics*"
-            is Latest->"*Showing Latest Comics*"
-            is ByGenre->"*Showing Comics By Genre*"
+            is CommandType.Completed->"*Showing Completed Comics*"
+            is CommandType.Ongoing ->"*Showing On going Comics*"
+            is CommandType.Popular->"*Showing Popular Comics*"
+            is CommandType.Latest->"*Showing Latest Comics*"
+            is CommandType.ByGenre->"*Showing Comics By Genre*"
         }
     }
 
@@ -107,28 +107,28 @@ interface PaginatedCommands:Command {
         var contentMessage = ""
         var errorMessage=""
         when(commandType){
-            is Completed->{
+            is CommandType.Completed->{
                 val(msgToBeSent,errMsg)=parseFlow(pageNumber, block1 = completedComics, block2 = action)
                 contentMessage = msgToBeSent
                 errorMessage=errMsg
             }
-            is Ongoing->{
+            is CommandType.Ongoing->{
                 val(msgToBeSent,errMsg)=parseFlow(pageNumber, block1 = ongoingComics, block2 = action)
                 contentMessage = msgToBeSent
                 errorMessage=errMsg
 
             }
-            is Popular->{
+            is CommandType.Popular->{
                 val(msgToBeSent,errMsg)=parseFlow(pageNumber, block1 = popularComics, block2 = action)
                 contentMessage = msgToBeSent
                 errorMessage=errMsg
             }
-            is Latest->{
+            is CommandType.Latest->{
                 val(msgToBeSent,errMsg)=parseFlow(pageNumber, block1 = latestComics, block2 = action)
                 contentMessage = msgToBeSent
                 errorMessage=errMsg
             }
-            is ByGenre->{
+            is CommandType.ByGenre->{
                require(genres!=null){
                     "Genre cannot be null" }
                val genre= genres!!

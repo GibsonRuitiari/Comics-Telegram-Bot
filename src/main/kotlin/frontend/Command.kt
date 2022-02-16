@@ -1,6 +1,7 @@
 package frontend
 
 import backend.comicDetails
+import backend.comicPages
 import backend.comic_models.SManga
 import backend.comic_models.SMangaInfo
 import backend.comic_models.SMangaIssue
@@ -12,11 +13,15 @@ import com.elbekD.bot.types.Message
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onCompletion
 import mu.KLogger
+import org.apache.commons.io.FileUtils
+import utils.*
+import java.net.SocketException
 import java.net.URL
 import java.net.UnknownHostException
 import java.net.http.HttpTimeoutException
 import java.time.LocalDateTime
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 import kotlin.math.roundToInt
 
 
@@ -106,10 +111,17 @@ interface Command{
      Parses an error & gives out the appropriate error message to be shown to the user
      */
     fun parseThrowableAndGiveErrorMessage(cause:Throwable):String = when(cause){
-        is HttpTimeoutException, is UnknownHostException->"\uD83E\uDD39 our elves have notified us that there is a problem with your internet connection.\nPlease check your internet connection and try again :XD."
+       // it is SocketException || it is HttpTimeoutException || it is UnknownHostException
+        is HttpTimeoutException, is UnknownHostException, is SocketException->"\uD83E\uDD39 our elves have notified us that there is a problem with your internet connection.\nPlease check your internet connection and try again :XD."
         else->{
             "\uD83D\uDC40 shucks an error occurred on our side,please sit tight and wait for the problem to be rectified by our elves.\nPlease try again later :XD"
         }
+    }
+    fun String.formatComicPageLinkToName():String{
+        val u = replace("https://viewcomics.me/","")
+        val firstSegment=u.split("/").first().replace("-","")
+        val secondSegment=u.split("/")[1].replace("issue-","")
+        return "${firstSegment}_${secondSegment}"
     }
 
     /**
@@ -125,20 +137,7 @@ interface Command{
         return originalName to link
     }
 
-    /**
-     * This function writes a stream to a file
-     * given an url
-     */
-    private fun writeStreamToFile(url:String){
-        URL(url).openStream().use { is_->
-            // behind the scenes this uses a buffer
-            Path(System.getProperty("user.home"),"test.png").toFile()
-                .outputStream().use { os->
-                    is_.copyTo(os)
-                }
 
-        }
-    }
     /******************************
      * Helper methods END
      *****************************/
@@ -193,8 +192,7 @@ interface Command{
                val chunkedIssues= sMangaIssues.chunked(60)
                val indices = chunkedIssues.indices
                if (indices.count()>1){
-                  logger.info { "big list chunked! crunk crunk" }
-                   logger.info { "indices ${indices.joinToString(",")}" }
+
                    // initial message
                    bot.sendMessage(message.chat.id,"*Comic Issues*\n\n${chunkedIssues[index.value].formatToString()}",
                    parseMode = "Markdown",
@@ -208,7 +206,6 @@ interface Command{
                        bot.answerCallbackQuery(cb.id)
                        val chatId = cb.message?.chat?.id ?: return@onCallbackQuery
                        index.value = if (index.value<indices.last) index.value+1 else indices.last
-                       logger.info {  "index value current [NEXT]: ${index.value}"}
                        val editedIssuesText = chunkedIssues[index.value].formatToString()
                        bot.editMessageText(chatId,messageId = cb.message?.message_id,
                            inlineMessageId = cb.inline_message_id, text = "*Issues*\n\n$editedIssuesText", parseMode = "Markdown",
@@ -219,7 +216,6 @@ interface Command{
                        bot.answerCallbackQuery(cb.id)
                        val chatId = cb.message?.chat?.id ?: return@onCallbackQuery
                        index.value = if (index.value>indices.first) index.value-1 else indices.first
-                       logger.info {  "index value current [PREV]: ${index.value}"}
                        val editedIssuesText = chunkedIssues[index.value].formatToString()
                        bot.editMessageText(chatId,messageId = cb.message?.message_id,
                            inlineMessageId = cb.inline_message_id, text = "*Issues*\n\n$editedIssuesText", parseMode = "Markdown",
@@ -229,7 +225,6 @@ interface Command{
                // handle call backs [END]
 
                }else{
-                   logger.info { "issues list is not chunked bleh" }
                    val text="*Comic Issues*\n\n${chunkedIssues[0].formatToString()}"
                    bot.sendMessage(message.chat.id,
                    text,
@@ -239,12 +234,62 @@ interface Command{
            }
         }
     }
-    private fun Bot.handleClickedIssues(list: List<Pair<String,String>>){
+
+    private fun Bot.handleClickedIssues(list: List<Pair<String,String>>,logger: KLogger){
         list.forEach {
             onCommand("/vd_${it.second}"){
                 message, _ ->
-                val fullUrl ="https://viewcomics.me/${it.first}"
-                sendMessage(message.chat.id,fullUrl)
+                val url = "https://viewcomics.me/${it.first}"
+                val comicName =url.formatComicPageLinkToName()
+                val fullUrl ="$url/full"
+                try {
+                    val sentMessage=sendMessage(message.chat.id,"working please wait a moment :XD").await()
+                    comicPages(fullUrl)
+                        .onCompletion { cause->
+                            cause?.let {
+                                val errorMsg=parseThrowableAndGiveErrorMessage(it)
+                                logger.error { "${LocalDateTime.now()}: errorMessage--> $errorMsg" }
+                                sendMessage(sentMessage.chat.id,errorMsg, parseMode = "Markdown").await()
+                            }
+                        }
+                        .collect{pages->
+                            val baseDir = createBaseTmpDir()
+                            val comicZip=createTempZipFile(baseDir,"${comicName}.cbz")
+                            val saveDir = createTempImgSaveDir(baseDir,comicName)
+                            try {
+                                saveComicImagesToZip(pages.pages, zipFile = comicZip,saveDir)
+                                val downloadUrl=uploadComicToRemoteServer(comicZip.file.toPath(),logger){
+                                    logger.info { "progress: $it %" }
+                                    future {
+                                        val uploadMsg=sendMessage(message.chat.id,"uploading file to server :XD").await()
+                                        while (true){
+                                            if (it ==100) {
+                                                editMessageText(uploadMsg.chat.id, uploadMsg.message_id,null,"done  :XD").await()
+                                                break
+                                            }
+                                            editMessageText(uploadMsg.chat.id,
+                                                uploadMsg.message_id,null,"progress: $it%").await()
+                                        }
+                                    }
+                                }
+                                sendMessage(message.chat.id,"Here is the download link ${System.lineSeparator()}$downloadUrl ${System.lineSeparator()}It expires in 3days from now").await()
+                                comicZip.file.delete()
+                                // delete the dir
+                                // note using Files.deleteDir or similar method will throw directory not empty exception
+                                if (saveDir.exists()) FileUtils.forceDelete(saveDir.toFile())
+                            }catch (ex:Exception){
+                                val errMsg = parseThrowableAndGiveErrorMessage(ex)
+                                logger.error { "${LocalDateTime.now()}: errorMessage--> $errMsg" }
+                                sendMessage(message.chat.id,errMsg)
+                            }
+
+                        }
+                }catch (ex:Exception){
+                   val errorMessage= parseThrowableAndGiveErrorMessage(ex)
+                    logger.error { "${LocalDateTime.now()}: errorMessage--> $errorMessage" }
+                    sendMessage(message.chat.id,errorMessage)
+                }
+
             }
         }
     }
@@ -261,16 +306,15 @@ interface Command{
                      }
                  }.collect{
                      val details=it.constructComicDetails()
-                  //    handleClickedIssues(issueCommandsList)
                      val caption= "$details \n [photo](${it.comicImagePosterLink})"
                      val issues= it.issues.reversed()
                      val issueCommandsList = issues.map {issue-> issue.issueLink.returnIssueLink() }
 
-                     handleClickedIssues(issueCommandsList)
+                     handleClickedIssues(issueCommandsList,logger)
                      logger.info { "${LocalDateTime.now()}: issue commands list ${issueCommandsList.joinToString(",")}" }
 
                      try {
-                      val result = sendMessage(message.chat.id,caption, parseMode = "Markdown").get()
+                      val result = sendMessage(message.chat.id,caption, parseMode = "Markdown").await()
                          block.invoke(result,issues)
                      }catch (ex:TelegramApiError){
                          logger.error { "error while handling clicked comics ${ex.cause}" }
