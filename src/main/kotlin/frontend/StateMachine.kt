@@ -2,12 +2,14 @@ package frontend
 
 import com.elbekD.bot.Bot
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import mu.KotlinLogging
 import java.time.LocalDateTime
 
 class StateMachine constructor(private val bot: Bot){
     private var initialState = MutableStateFlow<State>(State.BlankState) // initial state
     private var _currentState = initialState
+    val currentState:StateFlow<State> = _currentState // for testing purposes
     private val logger = KotlinLogging.logger {  }
     // delta function
     fun onEvent(command: Command){

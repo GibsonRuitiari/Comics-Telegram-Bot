@@ -40,9 +40,9 @@ interface Command{
 
     // issues button row
     val buttonRow:List<InlineKeyboardButton>
-    get() = listOf(InlineKeyboardButton("<<prev",
+    get() = listOf(InlineKeyboardButton("⇠ Prev",
     callback_data = "prev_cb"),
-    InlineKeyboardButton("next>>", callback_data = "next_cb"))
+    InlineKeyboardButton("Next ⇢", callback_data = "next_cb"))
 
     //markup
     val issuesButtonMarkup:InlineKeyboardMarkup

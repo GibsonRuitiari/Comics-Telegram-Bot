@@ -29,8 +29,8 @@ interface PaginatedCommands:Command {
      <button> <button>
      */
     val inlineKeyboardRows: List<InlineKeyboardButton>
-        get() = listOf(InlineKeyboardButton("<< prev", callback_data = prevCallbackQueryData),
-            InlineKeyboardButton("next >>", callback_data = nextCallbackQueryData))
+        get() = listOf(InlineKeyboardButton("⇠ Prev", callback_data = prevCallbackQueryData),
+            InlineKeyboardButton("Next ⇢", callback_data = nextCallbackQueryData))
     val inlineKeyboardMarkup:InlineKeyboardMarkup
     get() = InlineKeyboardMarkup(listOf(inlineKeyboardRows))
     /*

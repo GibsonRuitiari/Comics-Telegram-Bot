@@ -48,8 +48,8 @@ suspend  fun uploadComicToRemoteServer(currentPath: Path, logger:KLogger, progre
     return@withContext downloadUrl
 }
 
- fun createBaseTmpDir():Path{
-    val tmpBaseDir = Path(System.getProperty("user.dir"),"comics_tmp")
+ fun createBaseTmpDir(dirName:String="comics_tmp"):Path{
+    val tmpBaseDir = Path(System.getProperty("user.dir"),dirName)
     if (tmpBaseDir.notExists()) tmpBaseDir.createDirectory()
     return tmpBaseDir
 }
