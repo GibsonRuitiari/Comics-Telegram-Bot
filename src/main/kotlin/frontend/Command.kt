@@ -260,10 +260,10 @@ interface Command{
                                     logger.info { "progress: $it %" }
                                     future {
                                         val uploadMsg=sendMessage(message.chat.id,"uploading file to server :XD").await()
-                                        while (true){
+                                       loopy@ while (true){
                                             if (it ==100) {
                                                 editMessageText(uploadMsg.chat.id, uploadMsg.message_id,null,"done  :XD").await()
-                                                break
+                                                break@loopy
                                             }
                                             editMessageText(uploadMsg.chat.id,
                                                 uploadMsg.message_id,null,"progress: $it%").await()

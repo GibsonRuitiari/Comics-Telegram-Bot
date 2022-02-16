@@ -6,8 +6,6 @@ fun main()  {
      botController.onCreate()
      botController.initializeCommands()
 
-
-
 //    comicPages("https://viewcomics.me/maniac-of-new-york-the-bronx-is-burning/issue-3/full")
 //        .onCompletion { cause->
 //            cause?.let {
