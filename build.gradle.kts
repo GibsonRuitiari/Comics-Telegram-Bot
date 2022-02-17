@@ -50,7 +50,7 @@ tasks.withType<KotlinCompile> {
 
 }
 tasks.create("stage"){
-    dependsOn("build","run")
+    dependsOn("build")
 }
 tasks.withType<Test>{
     enabled=false
