@@ -77,7 +77,7 @@ interface PaginatedCommands:Command {
     // updates the list shown to the user i.e. when page > 1
     // this method will be called only when the user clicks the paginated buttons
     private suspend fun Bot.updateComicsListOnPaginationButtonClicked(chatId:Long,
-    messageId:Int?,inlineMessageId:String?,pageNumber:Int){
+    messageId:Long?,inlineMessageId:String?,pageNumber:Int){
            val contentMessage = fetchAndParseComicsBasedOnType(pageNumber = pageNumber){
                clickedComicsObservable = it
            }
