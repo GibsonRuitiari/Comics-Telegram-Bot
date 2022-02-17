@@ -21,7 +21,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp-dnsoverhttps:4.9.3")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-native-mt")
-    implementation("com.github.elbekD", "kt-telegram-bot", "1.3.8")
+    implementation("com.github.elbekD", "kt-telegram-bot", "1.4.1")
 
     // zip4j
     implementation("net.lingala.zip4j","zip4j","2.9.1")
