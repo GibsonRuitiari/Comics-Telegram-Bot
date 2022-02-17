@@ -12,8 +12,6 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://jitpack.io")
-    maven("https://mvn.mchv.eu/repository/mchv/")
-
 }
 
 dependencies {
@@ -47,8 +45,18 @@ tasks.test {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
-}
+    kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.DelicateCoroutinesApi"
 
+}
+tasks.withType<Jar>{
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    configurations["compileClasspath"].forEach { from(zipTree(it.absoluteFile)) }
+    configurations["runtimeClasspath"].forEach { from(zipTree(it.absoluteFile)) }
+    manifest{
+        attributes(mapOf("Main-Class" to "MainKt"))
+    }
+
+}
 application {
     mainClass.set("MainKt")
 }
