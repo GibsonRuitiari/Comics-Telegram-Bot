@@ -25,8 +25,7 @@ typealias ReadProgress = (Int)->Unit
  * @param progressBlock for reporting the progress to client/user
  */
 suspend  fun uploadComicToRemoteServer(currentPath: Path, logger:KLogger, progressBlock:ReadProgress):String? = withContext(Dispatchers.IO){
-    val file = FileDataPart.from(currentPath.absolutePathString(), filename = "test_comic",
-        contentType = contentType)
+    val file = FileDataPart.from(currentPath.absolutePathString(), contentType = contentType)
     var progressToReport = 0
     val (_,_, result) = Fuel.upload(serverUrl)
         .add { file}
@@ -78,6 +77,11 @@ suspend  fun uploadComicToRemoteServer(currentPath: Path, logger:KLogger, progre
  fun createTempImgSaveDir(baseDir: Path,dirName:String):Path{
     return createTempDirectory(baseDir,dirName)
 }
+
+/**
+ * Iterates through the list of comic pages and adds
+ *them, to the given zip file, as .png
+ */
  suspend fun saveComicImagesToZip(pages:List<SMangaPage>,
                                          zipFile: ZipFile, saveDir:Path){
     withContext(Dispatchers.IO){

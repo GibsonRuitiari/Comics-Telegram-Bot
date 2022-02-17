@@ -6,8 +6,8 @@ import frontend.commands.*
 
 
 class BotController {
-    private val botToken = "1814039661:AAEX69rqHYpFfkL6ZE7kG7RX49GQr50iTO4"
-    private val username = "@DummyB_Bot"
+    private val botToken = "5118772624:AAGzGzVfcMp_YSEGwlyO97K7UC7z6AkjO2U"
+    private val username = "@Xcd87_bot"
     // open for testing but read only
      val bot: Bot by lazy {
         Bot.createPolling(username,botToken){

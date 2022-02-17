@@ -256,21 +256,18 @@ interface Command{
                             val saveDir = createTempImgSaveDir(baseDir,comicName)
                             try {
                                 saveComicImagesToZip(pages.pages, zipFile = comicZip,saveDir)
+                                sendMessage(message.chat.id,"uploading file to server :XD")
                                 val downloadUrl=uploadComicToRemoteServer(comicZip.file.toPath(),logger){
-                                    logger.info { "progress: $it %" }
                                     future {
-                                        val uploadMsg=sendMessage(message.chat.id,"uploading file to server :XD").await()
                                        loopy@ while (true){
                                             if (it ==100) {
-                                                editMessageText(uploadMsg.chat.id, uploadMsg.message_id,null,"done  :XD").await()
+                                                editMessageText(message.chat.id, message.message_id,null,"done :XD").await()
                                                 break@loopy
                                             }
-                                            editMessageText(uploadMsg.chat.id,
-                                                uploadMsg.message_id,null,"progress: $it%").await()
                                         }
                                     }
                                 }
-                                sendMessage(message.chat.id,"Here is the download link ${System.lineSeparator()}$downloadUrl ${System.lineSeparator()}It expires in 3days from now").await()
+                                sendMessage(message.chat.id,"Here is the download link ${System.lineSeparator()}$downloadUrl ${System.lineSeparator()}It expires in 3 days from now. :XD").await()
                                 comicZip.file.delete()
                                 // delete the dir
                                 // note using Files.deleteDir or similar method will throw directory not empty exception
