@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2022. Ruitiari Gibson.
+ * All rights reserved.
+ */
+
 package backend
 
 import backend.comic_models.*
