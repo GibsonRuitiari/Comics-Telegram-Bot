@@ -33,6 +33,7 @@ dependencies {
 
     // download
     implementation ("com.github.kittinunf.fuel:fuel:2.3.1")
+    implementation("com.google.truth:truth:1.1.3")
 
 
     // test
