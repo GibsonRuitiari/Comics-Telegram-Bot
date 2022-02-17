@@ -49,6 +49,9 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.DelicateCoroutinesApi"
 
 }
+tasks.create("stage"){
+    dependsOn("build")
+}
 tasks.withType<Jar>{
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     configurations["compileClasspath"].forEach { from(zipTree(it.absoluteFile)) }
