@@ -50,7 +50,10 @@ tasks.withType<KotlinCompile> {
 
 }
 tasks.create("stage"){
-    dependsOn("build")
+    dependsOn("build","run")
+}
+tasks.withType<Test>{
+    enabled=false
 }
 tasks.withType<Jar>{
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
