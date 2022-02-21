@@ -6,7 +6,7 @@ import frontend.commands.*
 
 
 class BotController {
-    private val botToken = "5118772624:AAGzGzVfcMp_YSEGwlyO97K7UC7z6AkjO2U"
+    private val botToken = "5118772624:AAGzGzVfcMp_YSEGwlyO97K7UC7z6AkjO2U" // todo: save this somewhere else; also replace this with your bot token 
     private val username = "@Xcd87_bot"
     // open for testing but read only
      val bot: Bot by lazy {
