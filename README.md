@@ -1,6 +1,13 @@
 # Comics-Telegram-Bot
 
-A comics telegram bot made in kotlin
+This repository contains the source code for 8bit_lives a telegram bot written using kotlin language.
+The bot allows one to download comic books in form of .cbz (accepted/universal comic archive) right from telegram.
+The project was written with the aim of understanding certain concepts of computer science, and perphaps the most
+important concept enumerated in the project was the concept of a finite state machine.
+A finite state machine in lay-man's terms simply means an object that given a set of inputs works on the said inputs
+and returns the desired outputs.
+Albeit, my implementation of finite state machine may be laced with novelty, and or crude, I had fun implementing it and I learnt a lot.
+Please not, the project is far from perfect so for any bugs feel free to open an issue or ping me.
 
 ## **Todo**
 
