@@ -31,6 +31,9 @@ dependencies {
     implementation("org.slf4j", "slf4j-simple", "2.0.0-alpha2")
     implementation("io.github.microutils", "kotlin-logging", "2.0.10")
 
+    // configuration
+    implementation("com.natpryce", "konfig", "1.6.10.0")
+
     // download
     implementation ("com.github.kittinunf.fuel:fuel:2.3.1")
     implementation("com.google.truth:truth:1.1.3")
